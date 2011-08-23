@@ -1,0 +1,6 @@
+( (S (NP (NN time)) (VP (VBZ flies) (PP (IN like) (NP (DT an) (NN arrow)))) (. .)) )
+( (S (NP (NN time)) (VP (VBZ flies) (ADVP (IN like) (NP (DT an) (NN arrow)))) (. .)) )
+( (S (NP (NN time)) (VP (VBZ flies) (NP (PP (IN like) (NP (DT an) (NN arrow))))) (. .)) )
+( (S (NP (NN time)) (VP (VBZ flies) (NP (IN like) (DT an) (NN arrow))) (. .)) )
+( (S (NP (NN time)) (VP (VBZ flies) (NP (ADVP (IN like) (NP (DT an) (NN arrow))))) (. .)) )
+( (S (NP (NN time)) (VP (VBZ flies) (PP (NP (IN like) (DT an) (NN arrow)))) (. .)) )

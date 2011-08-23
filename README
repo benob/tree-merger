@@ -1,0 +1,110 @@
+TreeMerger by benoit.favre@lif.univ-mrs.fr 2011-08-23
+
+This programs converts a list of trees (n-best) to a compact hypergraph representation.
+Requires java 1.5+
+
+To things need to be achieved to create a hypergraph from a list of trees:
+- factorize sub-trees (turns the tree to a DAG);
+- merge super-trees by creating OR nodes in the hypergraph.
+
+1) Factorizing sub-trees:
+
+An easy way to do it is to hash subtrees by their string representation.
+It's not scalable as the hash table contains as many entries as there are subtrees.
+A search-based approach would be more appropriate but slower?
+
+
+2) Merging two trees:
+
+We want to add OR nodes (+) to represent multiple trees.
+
+    A    A  =>  A
+    |    |      |
+    B    B      B  
+    |    |     / \ 
+   / \  / \   /   \
+   C D  C D   C   D
+   | |  | |  /+\ /+\
+   E F  F E  E F F E
+
+In the example above, since the two trees on the left only differ by their
+leaves, it's tempting to put OR nodes to allow multiple representation of the
+leaves. Four trees would be represented here which is not correct.
+
+Each OR node doubles the number of trees represented, so from the merger of two
+trees, there can be only one OR node.  The only safe merge point is the lowest
+common parent of the nodes where differences occur. Here it's B.
+
+      A
+      |
+      B
+    / + \
+    |   |
+   / \ / \
+   C D C D
+   | | | |
+   E F F E
+
+3) Merging more than two trees:
+
+In our implementation we iteratively merge each tree with the hypertree. The
+only difference is that we need to compute the difference between a tree and an
+hypertree, which is straightforward.
+
+However, the resulting hypertree depends on the order of the merges, and might
+become suboptimal.  For instance, consider the trees above with the four leaf
+variants: EF, FE, EE, FF. Clearly, the hypertree should have OR nodes at leaf
+positions that can be E or F. If the trees are merged in the following order:
+EF, FE, EE, FF. Then, a branch with an OR node at B will be created and remain
+in the hypertree.
+
+Therefore, we have to minimize the hypertree after each merge operation. For
+that matter, the children of OR nodes are tested for redundancy (can a subtree
+be represented by another subtree), and cascading OR nodes are merged.
+
+4) Input/Output formats:
+
+As input, s-expressions (parenthesed tree), and CoNLL'05 one-word-per-line
+(with parent on 7th field) are supported.  As output, when using s-expresssion,
+the hypertree is represented with OR nodes labeled as "-OR-". CoNLL output is
+not fully functionnal yet. Both formats are suboptimal because they can only
+represent trees, and an fsm format is provided to represent the hypergraph.
+
+5) fsm output format:
+
+The output file format is a list of arcs representing a finite state machine
+with special arc labels to denote OR nodes.
+
+Each arc is a triple:
+<start-state> <end-state> <label>
+If label is -OR-, then the arc is a OR node.
+Final states can be denoted using a single state id on a line
+<final-state>
+
+6) Usage:
+
+Compile with javac *.java
+
+java TreeMerger -h
+usage: java TreeMerger [-i <input-format>] [-o <output-format>] [-s <or-symbol>] [-e]
+   -i|input (sexp|conll)     set input format, defaults to s-expression
+   -o|output (sexp|fsm)      set output format, defaults to s-expression
+   -s|symbol <symbol>        symbol used to annotate or-nodes, defaults to -OR-
+   -e|expand                 expand fsm by not factorizing subtrees
+
+Use view-hypergraph.py to generate a pdf file from the hypergraph (requires pygraphviz, ghostscript and evince). 
+
+7) Examples:
+
+cat example1.txt | java TreeMerger
+(A (B (C (-OR- (E) (F))) (D (-OR- (F) (E)))))
+
+cat example2.txt | java TreeMerger
+( (S (NP (NN time)) (VP (VBZ flies) (-OR- (PP (IN like) (NP (DT an) (NN arrow))) (NP (IN like) (DT an) (NN arrow)) (PP (NP (IN like) (DT an) (NN arrow))) (NP (ADVP (IN like) (NP (DT an) (NN arrow)))) (NP (PP (IN like) (NP (DT an) (NN arrow)))) (ADVP (IN like) (NP (DT an) (NN arrow))))) (. .)))
+
+cat example3.txt | java TreeMerger -i conll -o fsm | python view-hypergraph.py
+
+8) Berkeley Parser demo:
+
+echo "\`\` I am you father '' , said Luke ." | java -jar berkeleyParser.jar -gr eng_sm6.gr -kbest 10 | grep "^(" | java TreeMerger
+( (-OR- (SINV (`` ``) (S (NP (PRP I)) (-OR- (VP (VBP am) (NP (PRP you)) (-OR- (NP (NN father)) (ADJP (NN father))) ('' '')) (VP (VBP am) (S (NP (PRP you)) (NP (NN father)) ('' ''))))) (, ,) (VP (VBD said)) (NP (NNP Luke)) (. .)) (S (`` ``) (S (NP (PRP I)) (VP (VBP am) (NP (PRP you)) (NP (NN father)) ('' ''))) (, ,) (SINV (VP (VBD said)) (NP (NNP Luke))) (. .)) (SINV (-OR- (S (`` ``) (NP (PRP I)) (-OR- (VP (VBP am) (NP (PRP you)) (-OR- (NP (NN father)) (ADJP (NN father))) ('' '')) (VP (VBP am) (S (NP (PRP you)) (NP (NN father)) ('' ''))))) (S (`` ``) (S (NP (PRP I)) (-OR- (VP (VBP am) (NP (PRP you)) (-OR- (NP (NN father)) (ADJP (NN father))) ('' '')) (VP (VBP am) (S (NP (PRP you)) (NP (NN father)) ('' ''))))))) (, ,) (VP (VBD said)) (NP (NNP Luke)) (. .))))
