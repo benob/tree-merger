@@ -87,8 +87,8 @@ Final states can be denoted using a single state id on a line
 
 Compile with javac *.java
 
-java edu.lif.TreeMerger -h
-usage: java edu.lif.TreeMerger [-i <input-format>] [-o <output-format>] [-s <or-symbol>] [-e]
+java TreeMerger -h
+usage: java TreeMerger [-i <input-format>] [-o <output-format>] [-s <or-symbol>] [-e]
    -i|input (sexp|conll)     set input format, defaults to s-expression
    -o|output (sexp|fsm)      set output format, defaults to s-expression
    -s|symbol <symbol>        symbol used to annotate or-nodes, defaults to -OR-
@@ -98,15 +98,15 @@ Use view-hypergraph.py to generate a pdf file from the hypergraph (requires pygr
 
 7) Examples:
 
-cat example1.txt | java edu.lif.TreeMerger
+cat example1.txt | java TreeMerger
 (A (B (C (-OR- (E) (F))) (D (-OR- (F) (E)))))
 
-cat example2.txt | java edu.lif.TreeMerger
+cat example2.txt | java TreeMerger
 ( (S (NP (NN time)) (VP (VBZ flies) (-OR- (PP (IN like) (NP (DT an) (NN arrow))) (NP (IN like) (DT an) (NN arrow)) (PP (NP (IN like) (DT an) (NN arrow))) (NP (ADVP (IN like) (NP (DT an) (NN arrow)))) (NP (PP (IN like) (NP (DT an) (NN arrow)))) (ADVP (IN like) (NP (DT an) (NN arrow))))) (. .)))
 
-cat example3.txt | java edu.lif.TreeMerger -i conll -o fsm | python view-hypergraph.py
+cat example3.txt | java TreeMerger -i conll -o fsm | python view-hypergraph.py
 
 8) Berkeley Parser demo:
 
-echo "\`\` I am you father '' , said Luke ." | java -jar berkeleyParser.jar -gr eng_sm6.gr -kbest 10 | grep "^(" | java edu.lif.TreeMerger
-( (-OR- (SINV (`` ``) (S (NP (PRP I)) (-OR- (VP (VBP am) (NP (PRP you)) (-OR- (NP (NN father)) (ADJP (NN father))) ('' '')) (VP (VBP am) (S (NP (PRP you)) (NP (NN father)) ('' ''))))) (, ,) (VP (VBD said)) (NP (NNP Luke)) (. .)) (S (`` ``) (S (NP (PRP I)) (VP (VBP am) (NP (PRP you)) (NP (NN father)) ('' ''))) (, ,) (SINV (VP (VBD said)) (NP (NNP Luke))) (. .)) (SINV (-OR- (S (`` ``) (NP (PRP I)) (-OR- (VP (VBP am) (NP (PRP you)) (-OR- (NP (NN father)) (ADJP (NN father))) ('' '')) (VP (VBP am) (S (NP (PRP you)) (NP (NN father)) ('' ''))))) (S (`` ``) (S (NP (PRP I)) (-OR- (VP (VBP am) (NP (PRP you)) (-OR- (NP (NN father)) (ADJP (NN father))) ('' '')) (VP (VBP am) (S (NP (PRP you)) (NP (NN father)) ('' ''))))))) (, ,) (VP (VBD said)) (NP (NNP Luke)) (. .))))
+echo "\`\` I am your father '' , said Darth Vador ." | java -jar berkeleyParser.jar -gr eng_sm6.gr -kbest 10 | grep "^(" | java TreeMerger
+( (-OR- (SINV (`` ``) (S (NP (PRP I)) (-OR- (VP (VBP am) (NP (PRP$ your) (NN father)) ('' '')) (VP (VBP am) (NP (PRP$ your) (NN father) ('' ''))))) (, ,) (VP (VBD said)) (NP (NNP Darth) (NNP Vador)) (. .)) (S (-OR- (S (`` ``) (NP (PRP I)) (-OR- (VP (VBP am) (NP (PRP$ your) (NN father)) ('' '')) (VP (VBP am) (NP (PRP$ your) (NN father) ('' ''))))) (S (`` ``) (S (NP (PRP I)) (VP (VBP am) (NP (PRP$ your) (NN father)) ('' ''))))) (, ,) (SINV (VP (VBD said)) (NP (NNP Darth) (NNP Vador))) (. .)) (S (`` ``) (S (NP (PRP I)) (VP (VBP am) (NP (PRP$ your) (NN father)) ('' ''))) (, ,) (SINV (VP (VBD said)) (NP (NNP Darth) (NNP Vador))) (. .)) (SINV (-OR- (S (`` ``) (NP (PRP I)) (-OR- (VP (VBP am) (NP (PRP$ your) (NN father)) ('' '')) (VP (VBP am) (NP (PRP$ your) (NN father) ('' ''))))) (S (`` ``) (S (NP (PRP I)) (-OR- (VP (VBP am) (NP (PRP$ your) (NN father)) ('' '')) (VP (VBP am) (NP (PRP$ your) (NN father) ('' ''))))))) (, ,) (VP (VBD said)) (NP (NNP Darth) (NNP Vador)) (. .))))
