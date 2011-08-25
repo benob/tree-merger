@@ -56,23 +56,21 @@ class Node implements Comparable<Node> {
     }
 
     public String toCoNLL() {
+        setParent(null);
         Vector<Node> nodes = collect();
-        Vector<Node> orNodes = new Vector<Node>();
-        for(Node node: nodes) {
-            if(node.isOrNode) {
-                orNodes.add(node);
-            }
+        Collections.sort(nodes);
+        int savedIds[] = new int[nodes.size()];
+        for(int i = 0; i < nodes.size(); i++) {
+            Node node = nodes.get(i);
+            savedIds[i] = node.id;
+            node.id = (1 + i); // new temporary id
         }
-        int nextId = nodes.size() + 1 - orNodes.size();
-        for(Node node: orNodes) {
-            node.id = nextId++;
-        }
-        //Collections.sort(nodes);
         StringBuffer output = new StringBuffer();
-        for(Node node: nodes) {
+        for(int i = 0; i < nodes.size(); i++) {
+            Node node = nodes.get(i);
             if(node.isOrNode) {
                 output.append(node.id);
-                for(int i = 0; i < 5; i++) {
+                for(int j = 0; j < 5; j++) {
                     output.append("\t_");
                 }
                 output.append("\t");
@@ -83,16 +81,22 @@ class Node implements Comparable<Node> {
             } else {
                 if(node.originalText != null) node.label = node.originalText;
                 String tokens[] = node.label.split("\t");
-                tokens[0] = "" + node.id;
-                if(node.parent != null) tokens[6] = "" + node.parent.id;
-                else tokens[6] = "0";
-                for(String token: tokens) {
-                    output.append(token);
+                output.append(node.id).append("\t");
+                for(int j = 0; j < 5; j++) {
+                    if(j < tokens.length) output.append(tokens[j]);
+                    else output.append("_");
                     output.append("\t");
+                }
+                if(node.parent != null) output.append(node.parent.id);
+                else output.append(0);
+                output.append("\t");
+                for(int j = 7; j < tokens.length; j++) {
+                    output.append(tokens[j]).append("\t");
                 }
             }
             output.append("\n");
         }
+        for(int i = 0; i < nodes.size(); i++) nodes.get(i).id = savedIds[i];
         return output.toString();
     }
 

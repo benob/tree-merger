@@ -20,14 +20,14 @@ A search-based approach would be more appropriate but slower?
 
 We want to add OR nodes (+) to represent multiple trees.
 
-    A    A  =>  A
-    |    |      |
-    B    B      B  
-    |    |     / \ 
-   / \  / \   /   \
-   C D  C D   C   D
-   | |  | |  /+\ /+\
-   E F  F E  E F F E
+    A    A   =>   A
+    |    |        |
+    B    B        B  
+    |    |       / \ 
+   / \  / \     /   \
+   C D  C D     C   D
+   | |  | |    /+\ /+\
+   E F  F E    E F F E
 
 In the example above, since the two trees on the left only differ by their
 leaves, it's tempting to put OR nodes to allow multiple representation of the
@@ -66,11 +66,14 @@ be represented by another subtree), and cascading OR nodes are merged.
 
 4) Input/Output formats:
 
-As input, s-expressions (parenthesed tree), and CoNLL'05 one-word-per-line
-(with parent on 7th field) are supported.  As output, when using s-expresssion,
-the hypertree is represented with OR nodes labeled as "-OR-". CoNLL output is
-not fully functionnal yet. Both formats are suboptimal because they can only
-represent trees, and an fsm format is provided to represent the hypergraph.
+As input, s-expressions (parenthesed trees), and CoNLL'05 one-word-per-line
+(with parent in 7th column) are supported.  As output, when using
+s-expressions, the hypertree is represented with OR nodes labeled as "-OR-". In
+CoNLL output OR nodes have empty columns ("_") except for parent id and label
+"-OR-". In this format, word ids might be changed and trees are not projective.
+Conversion from one format to the other is possible but uses a non-standard
+encoding.  Both formats are suboptimal because they only represent trees.
+Therefore, an fsm format is provided to represent the hypergraph.
 
 5) fsm output format:
 
