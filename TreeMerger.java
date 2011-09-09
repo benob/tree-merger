@@ -22,6 +22,7 @@ class TreeMerger {
     public int inputFormat = INPUT_SEXP;
     public String orSymbol = "-OR-";
     public boolean expandFsm = false;
+    public int limit = -1;
 
     public void mergeTrees() {
         Vector<Node> trees = new Vector<Node>();
@@ -55,7 +56,7 @@ class TreeMerger {
                     wasNull = true;
                 } else {
                     wasNull = false;
-                    trees.add(tree);
+                    if((limit > 0 && trees.size() < limit) || limit < 0) trees.add(tree);
                 }
             }
             if(trees.size() > 0) {
@@ -255,6 +256,7 @@ class TreeMerger {
         System.err.println("   -o|output (sexp|fsm)      set output format, defaults to s-expression");
         System.err.println("   -s|symbol <symbol>        symbol used to annotate or-nodes, defaults to -OR-");
         System.err.println("   -e|expand                 expand fsm by not factorizing subtrees");
+        System.err.println("   -n|num <num>              only keep n parses");
         System.exit(1);
     }
     public static void main(String args[]) {
@@ -278,6 +280,8 @@ class TreeMerger {
                 merger.orSymbol = args[++i];
             } else if(args[i].equals("-e") || args[i].equals("-expand") || args[i].equals("--expand")) {
                 merger.expandFsm = true;
+            } else if(args[i].equals("-n") || args[i].equals("-num") || args[i].equals("--num")) {
+                merger.limit = Integer.parseInt(args[++i]);
             } else {
                 usage();
             }
